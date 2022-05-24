@@ -1,0 +1,58 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.assignment'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation  group: 'jakarta.inject', name: 'jakarta.inject-api', version: '1.0.1'
+    implementation group: 'org.apache.commons', name: 'commons-lang3'
+    implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
+    implementation 'org.projectlombok:lombok:1.18.18'
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
+
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+
+}
+
+test {
+    useJUnitPlatform()
+    afterTest { descriptor, result ->
+        def totalTime = result.endTime - result.startTime
+        println "Total time of $descriptor.name was $totalTime ms"
+    }
+}
+
+task createSubmissionZip(dependsOn: getTasksByName('clean', true), type: Zip) {
+
+    destinationDir project.buildDir
+    archiveName 'assignment_submit.zip'
+    from projectDir
+    include subprojects.collect { it.name + '/**/*' } //Include everything under subprojects
+
+    exclude '**/*.docx', '**/out', '**/*.zip', '**/*.hprof', '**/*.xlsx', '**/.gitlab-ci.yml', '**/build', '**/.gradle', '**/.git', '**/*.iml', '**/.idea', '**/.metadata' //Exclude common stuff
+    print "You can find the zip to submit at: "+project.buildDir+"/assignment_submit.zip"
+}
